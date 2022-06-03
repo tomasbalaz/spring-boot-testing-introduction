@@ -1,0 +1,1 @@
+create sequence customer_sequence start with 1 increment by 50;
