@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.persistence.EntityManager;
@@ -19,10 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Testcontainers
 class ProductRepositoryTest {
 
-    private static PostgreSQLContainer postgreSQLContainer =
-            new PostgreSQLContainer(DockerImageName.parse("postgres:14-alpine"));
+    @Container
+    static PostgreSQLContainer<?> postgresqlContainer =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:14-alpine"));
 
     @Autowired
     private ProductRepository productRepository;
@@ -30,22 +34,21 @@ class ProductRepositoryTest {
     private EntityManager entityManager;
 
     @DynamicPropertySource
-    static void registerPgProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url",postgreSQLContainer::getJdbcUrl);
-        registry.add("spring.datasource.username",postgreSQLContainer::getUsername);
-        registry.add("spring.datasource.password",postgreSQLContainer::getPassword);
-
+    static void overrideProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgresqlContainer::getJdbcUrl);
+        registry.add("spring.datasource.username", postgresqlContainer::getUsername);
+        registry.add("spring.datasource.password", postgresqlContainer::getPassword);
     }
 
-    @BeforeAll
-    static void beforeAll() {
-        postgreSQLContainer.start();
-    }
-
-    @AfterEach
-    void tearDown() {
-        postgreSQLContainer.stop();
-    }
+//    @BeforeAll
+//    static void beforeAll() {
+//        postgresqlContainer.start();
+//    }
+//
+//    @AfterEach
+//    void tearDown() {
+//        postgresqlContainer.stop();
+//    }
 
     @Test
     void shouldGetAllActiveProducts() {
