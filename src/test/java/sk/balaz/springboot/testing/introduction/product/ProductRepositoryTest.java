@@ -26,7 +26,10 @@ class ProductRepositoryTest {
 
     @Container
     static PostgreSQLContainer<?> postgresqlContainer =
-            new PostgreSQLContainer<>(DockerImageName.parse("postgres:14-alpine"));
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:14-alpine"))
+                    .withDatabaseName("test")
+                    .withUsername("admin")
+                    .withPassword("secret");
 
     @Autowired
     private ProductRepository productRepository;
